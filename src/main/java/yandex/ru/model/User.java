@@ -2,6 +2,7 @@ package yandex.ru.model;
 
 import com.github.javafaker.Faker;
 import io.qameta.allure.Step;
+import io.restassured.response.ValidatableResponse;
 import lombok.Builder;
 import lombok.Data;
 import java.util.Locale;
@@ -14,6 +15,7 @@ public class User {
     private String name;
     private String email;
     private String accessToken;
+    private String refreshToken;
 
     @Step("Create random user with complete information")
     public static User createRandomUser() {
@@ -24,6 +26,14 @@ public class User {
                 .name(fakerRu.name().firstName())
                 .email(faker.internet().emailAddress())
                 .build();
+    }
+
+
+    @Step("Set user {user.name} tokens")
+    public User setAllToken(ValidatableResponse response) {
+        this.setAccessToken(response.extract().response().jsonPath().getString("accessToken"));
+        this.setRefreshToken(response.extract().response().jsonPath().getString("refreshToken"));
+        return this;
     }
 
 }

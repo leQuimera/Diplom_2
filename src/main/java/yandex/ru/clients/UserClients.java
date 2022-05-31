@@ -11,15 +11,12 @@ import static io.restassured.RestAssured.given;
 public class UserClients extends RestAssuredClient {
     @Step("Create new user")
     public ValidatableResponse createUser(User user) {
-        ValidatableResponse response = given()
+        return given()
                 .spec(getBaseSpecification())
                 .body(user)
                 .when()
                 .post(EndPoints.CREATE_USER)
                 .then();
-
-        user.setAccessToken(response.extract().response().jsonPath().getString("accessToken"));
-        return response;
     }
 
     @Step("User login")
@@ -39,38 +36,28 @@ public class UserClients extends RestAssuredClient {
                     .spec(getBaseSpecification())
                     .header("Authorization", user.getAccessToken())
                     .when()
-                    .delete(EndPoints.GET_UPDATE_USER)
+                    .delete(EndPoints.UPDATE_DELETE_USER)
                     .then();
         }
     }
 
-    @Step("Delete user without authorisation")
-    public ValidatableResponse deleteUserWithoutUserToken(User user) {
-        return given()
-                .spec(getBaseSpecification())
-                .when()
-                .delete(EndPoints.GET_UPDATE_USER)
-                .then();
-    }
-
-    @Step("Update user information")
-    public ValidatableResponse updateUser(User user) {
-        return given()
-                .spec(getBaseSpecification())
-                .headers("Authorization", user.getAccessToken())
-                .body(user)
-                .when()
-                .patch(EndPoints.GET_UPDATE_USER)
-                .then();
-    }
-
-    @Step("Update user information without authorisation")
-    public ValidatableResponse updateUserWithoutUserToken(User user) {
-        return given()
-                .spec(getBaseSpecification())
-                .body(user)
-                .when()
-                .patch(EndPoints.GET_UPDATE_USER)
-                .then();
+    @Step("Update user information after authorisation")
+    public ValidatableResponse updateUser(User currentUser, User newUser) {
+        if (currentUser.getAccessToken() != null) {
+            return given()
+                    .spec(getBaseSpecification())
+                    .header("Authorization", currentUser.getAccessToken())
+                    .when()
+                    .body(newUser)
+                    .patch(EndPoints.UPDATE_DELETE_USER)
+                    .then();
+        } else {
+            return given()
+                    .spec(getBaseSpecification())
+                    .when()
+                    .body(newUser)
+                    .patch(EndPoints.UPDATE_DELETE_USER)
+                    .then();
+        }
     }
 }

@@ -1,4 +1,4 @@
-package yandex.ru.user;
+package yandex.ru.user.user;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
@@ -33,6 +33,7 @@ public class UserAuthorisationTest {
     @DisplayName("Successful creation of a user")
     public void userCanBeCreated() {
         ValidatableResponse response = userClients.createUser(user);
+        user.setAllToken(response);
         response.assertThat().statusCode(SC_OK);
         response.assertThat().body("success", equalTo(true));
     }
