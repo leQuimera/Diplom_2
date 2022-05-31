@@ -1,4 +1,4 @@
-package yandex.ru.user.user;
+package yandex.ru.user;
 
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.ValidatableResponse;
