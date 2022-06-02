@@ -14,25 +14,25 @@ import static org.hamcrest.Matchers.equalTo;
 
 public class UserAuthorisationTest {
     private User user;
-    private UserClients userClients;
+    private UserClients userClient;
     private static final String MESSAGE_FORBIDDEN_DUPLICATE_USER = "User already exists";
     private static final String MESSAGE_FORBIDDEN_REQUIRED_FIELDS = "Email, password and name are required fields";
 
     @Before
     public void setUp() {
-        user = User.createRandomUser();
-        userClients = new UserClients();
+        user = User.generateRandomUser();
+        userClient = new UserClients();
     }
 
     @After
     public void tearDown() {
-        userClients.deleteUser(user);
+        userClient.deleteUser(user);
     }
 
     @Test
     @DisplayName("Successful creation of a user")
     public void userCanBeCreated() {
-        ValidatableResponse response = userClients.createUser(user);
+        ValidatableResponse response = userClient.createUser(user);
         user.setAllToken(response);
         response.assertThat().statusCode(SC_OK);
         response.assertThat().body("success", equalTo(true));
@@ -41,8 +41,8 @@ public class UserAuthorisationTest {
     @Test
     @DisplayName("Recreation of a user")
     public void duplicateUserCannotBeCreated() {
-        userClients.createUser(user);
-        ValidatableResponse responseDuplicate = userClients.createUser(user);
+        userClient.createUser(user);
+        ValidatableResponse responseDuplicate = userClient.createUser(user);
         responseDuplicate.assertThat().statusCode(SC_FORBIDDEN);
         responseDuplicate.assertThat().body("success", equalTo(false));
         responseDuplicate.assertThat().body("message", equalTo(MESSAGE_FORBIDDEN_DUPLICATE_USER));
@@ -52,7 +52,7 @@ public class UserAuthorisationTest {
     @DisplayName("Trying new user without email")
     public void registrationUserWithoutEmail() {
         user.setEmail(null);
-        ValidatableResponse response = userClients.createUser(user);
+        ValidatableResponse response = userClient.createUser(user);
         response.assertThat().statusCode(SC_FORBIDDEN);
         response.assertThat().body("success", equalTo(false));
         response.assertThat().body("message", equalTo(MESSAGE_FORBIDDEN_REQUIRED_FIELDS));
@@ -62,7 +62,7 @@ public class UserAuthorisationTest {
     @DisplayName("Trying new user without email")
     public void registrationUserWithoutPassword() {
         user.setPassword(null);
-        ValidatableResponse response = userClients.createUser(user);
+        ValidatableResponse response = userClient.createUser(user);
         response.assertThat().statusCode(SC_FORBIDDEN);
         response.assertThat().body("success", equalTo(false));
         response.assertThat().body("message", equalTo(MESSAGE_FORBIDDEN_REQUIRED_FIELDS));

@@ -18,7 +18,7 @@ public class User {
     private String refreshToken;
 
     @Step("Create random user with complete information")
-    public static User createRandomUser() {
+    public static User generateRandomUser() {
         Faker faker = new Faker();
         Faker fakerRu = new Faker(new Locale("ru"));
         return User.builder()
@@ -30,10 +30,9 @@ public class User {
 
 
     @Step("Set user {user.name} tokens")
-    public User setAllToken(ValidatableResponse response) {
+    public void setAllToken(ValidatableResponse response) {
         this.setAccessToken(response.extract().response().jsonPath().getString("accessToken"));
         this.setRefreshToken(response.extract().response().jsonPath().getString("refreshToken"));
-        return this;
     }
 
 }

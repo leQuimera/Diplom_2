@@ -14,29 +14,29 @@ import static org.hamcrest.Matchers.equalTo;
 public class UserEditProfileTest {
     private User currentUser;
     private User newUser;
-    private UserClients userClients;
+    private UserClients userClient;
     private static final String MESSAGE_ERROR_UNAUTHORIZED = "You should be authorised";
     private static final String MESSAGE_ERROR_FORBIDDEN = "User with such email already exists";
 
     @Before
     public void setUp() {
-        currentUser = User.createRandomUser();
-        newUser = User.createRandomUser();
-        userClients = new UserClients();
+        currentUser = User.generateRandomUser();
+        newUser = User.generateRandomUser();
+        userClient = new UserClients();
     }
 
     @After
     public void tearDown() {
-        userClients.deleteUser(currentUser);
+        userClient.deleteUser(currentUser);
     }
 
     @Test
     @DisplayName("Change all information about user")
     public void changeAllInformationForAuthorizedUser() {
-        ValidatableResponse response = userClients.createUser(currentUser);
+        ValidatableResponse response = userClient.createUser(currentUser);
         currentUser.setAllToken(response);
 
-        ValidatableResponse responseUpdate = userClients.updateUser(currentUser, newUser);
+        ValidatableResponse responseUpdate = userClient.updateUser(currentUser, newUser);
         responseUpdate.assertThat().statusCode(SC_OK);
         responseUpdate.assertThat().body("user.email", equalTo(newUser.getEmail()));
         responseUpdate.assertThat().body("user.name", equalTo(newUser.getName()));
@@ -45,9 +45,9 @@ public class UserEditProfileTest {
     @Test
     @DisplayName("Trying to change non authorized user")
     public void tryToChangeNonAuthorizedUser() {
-        userClients.createUser(currentUser);
+        userClient.createUser(currentUser);
 
-        ValidatableResponse responseUpdate = userClients.updateUser(currentUser, newUser);
+        ValidatableResponse responseUpdate = userClient.updateUser(currentUser, newUser);
         responseUpdate.assertThat().statusCode(SC_UNAUTHORIZED);
         responseUpdate.assertThat().body("message", equalTo(MESSAGE_ERROR_UNAUTHORIZED));
     }
@@ -55,13 +55,13 @@ public class UserEditProfileTest {
     @Test
     @DisplayName("Trying to replace the mail with an existing one")
     public void tryToReplaceEmailWithExisting() {
-        ValidatableResponse response = userClients.createUser(currentUser);
-        userClients.createUser(newUser);
+        ValidatableResponse response = userClient.createUser(currentUser);
+        userClient.createUser(newUser);
 
-        userClients.loginUser(currentUser);
+        userClient.loginUser(currentUser);
         currentUser.setAllToken(response);
 
-        ValidatableResponse responseUpdate = userClients.updateUser(currentUser, newUser);
+        ValidatableResponse responseUpdate = userClient.updateUser(currentUser, newUser);
         responseUpdate.assertThat().statusCode(SC_FORBIDDEN);
         responseUpdate.assertThat().body("message", equalTo(MESSAGE_ERROR_FORBIDDEN));
 
