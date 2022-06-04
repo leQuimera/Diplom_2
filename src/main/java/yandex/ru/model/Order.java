@@ -1,16 +1,13 @@
 package yandex.ru.model;
 
 import com.github.javafaker.Faker;
-import com.jayway.jsonpath.Configuration;
-import com.jayway.jsonpath.JsonPath;
+import io.restassured.response.ValidatableResponse;
 import lombok.Builder;
 import lombok.Data;
 import yandex.ru.clients.IngredientsClients;
-
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.apache.commons.lang3.RandomUtils.nextInt;
 
 @Data
 @Builder
@@ -30,30 +27,18 @@ public class Order {
         return new Order(ingredients);
     }
 
-    public static Order createRandomBurger() {
+    public static Order generateRandomBurger() {
         ArrayList<Object> ingredients = new ArrayList<>();
-        int bunIndex = nextInt(0, 1);
-        int mainIndex = nextInt(0, 8);
-        int sauceIndex = nextInt(0, 3);
-
         IngredientsClients ingredientsClients = new IngredientsClients();
-        String jsonResult = ingredientsClients.getAllListOfIngredients().extract().asString();
+        ValidatableResponse jsonResult = ingredientsClients.getAllListOfIngredients();
 
-        List buns = JsonPath
-                .using(Configuration.defaultConfiguration())
-                .parse(jsonResult)
-                .read("$.data[?(@.type == 'bun')]._id", List.class);
+        ArrayList<String> buns = jsonResult.extract().body().path("data.findAll { it.type == \"bun\"}._id");
+        ArrayList<String> mains = jsonResult.extract().body().path("data.findAll { it.type == \"main\"}._id");
+        ArrayList<String> sauces = jsonResult.extract().body().path("data.findAll { it.type == \"sauce\"}._id");
 
-        List mains = JsonPath
-                .using(Configuration.defaultConfiguration())
-                .parse(jsonResult)
-                .read("$.data[?(@.type == 'main')]._id", List.class);
-
-        List sauces = JsonPath
-                .using(Configuration.defaultConfiguration())
-                .parse(jsonResult)
-                .read("$.data[?(@.type == 'sauce')]._id", List.class);
-
+        int bunIndex = (int) (Math.random() * buns.size());
+        int mainIndex = (int) (Math.random() * mains.size());
+        int sauceIndex = (int) (Math.random() * sauces.size());
 
         ingredients.add(buns.get(bunIndex));
         ingredients.add(mains.get(mainIndex));

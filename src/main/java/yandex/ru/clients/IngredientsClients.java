@@ -1,7 +1,6 @@
 package yandex.ru.clients;
 
 import io.restassured.response.ValidatableResponse;
-import org.apache.commons.lang3.RandomUtils;
 import yandex.ru.units.EndPoints;
 import yandex.ru.units.RestAssuredClient;
 

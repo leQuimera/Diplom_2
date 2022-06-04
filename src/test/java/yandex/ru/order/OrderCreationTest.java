@@ -26,7 +26,7 @@ public class OrderCreationTest {
         userClient = new UserClients();
         ValidatableResponse response = userClient.createUser(user);
         user.setAllToken(response);
-        order = Order.createRandomBurger();
+        order = Order.generateRandomBurger();
         orderClient = new OrderClients();
     }
 
